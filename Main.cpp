@@ -48,6 +48,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			int y = GetRand(HEIGHT - GRASS_SIZE);
 
 			overlap = false;
+			for (int j = 0; j < i; j++)
+			{
+
+			}
 		}
 		//grassX[i] = GetRand(WIDTH - 200);
 		//grassY[i] = GetRand(HEIGHT - 200);
