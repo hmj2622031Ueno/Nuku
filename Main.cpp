@@ -6,6 +6,8 @@ const int WIDTH = 1000, HEIGHT = 700;
 const int GRASS_NUM = 5;
 const int GRASS_SIZE = 200;
 const float MAX_GAUGE = 100.0f;
+const float SUCCESS_TIME = 0.15f;
+const float GAUGE_SPEED = 1.0f;
 
 int grassX[GRASS_NUM];
 int grassY[GRASS_NUM];
@@ -16,6 +18,7 @@ int mouseInput;
 int selectedGrass = -1;
 
 float gauge = 0.0f;
+float maxTime = 0.0f;
 
 bool overlap;
 
@@ -107,15 +110,37 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			// 選択した草のゲージを増やす
 			if (selectedGrass != -1)
 			{
-				gauge += 1.0f;
-				if (gauge > MAX_GAUGE) { gauge = MAX_GAUGE; }
+				if (gauge < MAX_GAUGE)
+				{
+					gauge += GAUGE_SPEED;
+					if (gauge >= MAX_GAUGE)
+					{
+						gauge = MAX_GAUGE;
+						maxTime = GetNowCount() / 1000.0f;
+					}
+				}
+
 			}
 		}
 		else
 		{
-			// マウスを離したらリセット
-			selectedGrass = -1;
-			gauge = 0.0f;
+			// マウスを離した
+			if (selectedGrass != -1)
+			{
+				float releaseTime = GetNowCount() / 1000.0f;
+				float timeDifference = releaseTime - maxTime;
+				// ゲージがマックスなら草を抜く
+				if (gauge >= MAX_GAUGE && timeDifference >= -SUCCESS_TIME && timeDifference <= SUCCESS_TIME)
+				{
+					grassX[selectedGrass] = -1000;
+					grassY[selectedGrass] = -1000;
+				}
+
+				// ゲージをリセット
+				selectedGrass = -1;
+				gauge = 0.0f;
+				maxTime = 0.0f;
+			}
 		}
 
 		for (int i = 0; i < GRASS_NUM; i++)
