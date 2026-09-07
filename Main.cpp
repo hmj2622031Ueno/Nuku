@@ -112,11 +112,12 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			{
 				if (gauge < MAX_GAUGE)
 				{
+					// MAX‚É‚È‚é‚Ü‚Å‚ÌŽžŠÔ‚ðŒvŽZ
+					maxTime = GetNowCount() / 1000.0f + (MAX_GAUGE - gauge) / GAUGE_SPEED / 60.0f;
 					gauge += GAUGE_SPEED;
 					if (gauge >= MAX_GAUGE)
 					{
 						gauge = MAX_GAUGE;
-						maxTime = GetNowCount() / 1000.0f;
 					}
 				}
 
@@ -129,7 +130,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			{
 				float releaseTime = GetNowCount() / 1000.0f;
 				float timeDifference = releaseTime - maxTime;
-				// ƒQ[ƒW‚ªƒ}ƒbƒNƒX‚È‚ç‘‚ð”²‚­
+				// MAX‚É‚È‚é—\’èŽžŠÔ‚Ì‘OŒã0.15•b‚È‚ç‘‚ð”²‚­
 				if (gauge >= MAX_GAUGE && timeDifference >= -SUCCESS_TIME && timeDifference <= SUCCESS_TIME)
 				{
 					grassX[selectedGrass] = -1000;
