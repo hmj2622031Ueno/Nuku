@@ -7,7 +7,10 @@ const int GRASS_NUM = 5;
 const int GRASS_SIZE = 200;
 const float MAX_GAUGE = 100.0f;
 const float SUCCESS_TIME = 0.15f;
+<<<<<<< HEAD
 const float GAUGE_SPEED = 1.0f;
+=======
+>>>>>>> 84d1d35a4ed806b33c0c0668ff283a3b0468e5e2
 
 int grassX[GRASS_NUM];
 int grassY[GRASS_NUM];
@@ -110,6 +113,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			// ëIëÇµÇΩëêÇÃÉQÅ[ÉWÇëùÇ‚Ç∑
 			if (selectedGrass != -1)
 			{
+<<<<<<< HEAD
 				if (gauge < MAX_GAUGE)
 				{
 					gauge += GAUGE_SPEED;
@@ -120,6 +124,14 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 					}
 				}
 
+=======
+				gauge += 1.0f;
+				if (gauge > MAX_GAUGE) 
+				{ 
+					gauge = MAX_GAUGE; 
+					maxTime = GetNowCount() / 1000.0f;
+				}
+>>>>>>> 84d1d35a4ed806b33c0c0668ff283a3b0468e5e2
 			}
 		}
 		else
