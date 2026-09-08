@@ -6,8 +6,11 @@ const int WIDTH = 1000, HEIGHT = 700;
 const int GRASS_NUM = 5;
 const int GRASS_SIZE = 200;
 const float MAX_GAUGE = 100.0f;
-const float SUCCESS_TIME = 0.15f;
-const float GAUGE_SPEED = 1.0f;
+const float SUCCESS_TIME = 0.1f;
+// 草ごとのゲージ速度
+const float S_GRASS_SPEED = 2.0f;	// 小さい草
+const float B_GRASS_SPEED = 1.0f;	// 大きい草
+const float G_GRASS_SPEED = 0.5f;	// 金の草
 
 int grassX[GRASS_NUM];
 int grassY[GRASS_NUM];
@@ -112,9 +115,16 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			{
 				if (gauge < MAX_GAUGE)
 				{
+					// 草の種類に応じて速度を決める
+					float gaugeSpeed = 0.0f;
+					if (grassType[selectedGrass] == 0) { gaugeSpeed = S_GRASS_SPEED; }
+					else if (grassType[selectedGrass] == 1) { gaugeSpeed = B_GRASS_SPEED; }
+					else { gaugeSpeed = G_GRASS_SPEED; }
+
 					// MAXになるまでの時間を計算
-					maxTime = GetNowCount() / 1000.0f + (MAX_GAUGE - gauge) / GAUGE_SPEED / 60.0f;
-					gauge += GAUGE_SPEED;
+					maxTime = GetNowCount() / 1000.0f + (MAX_GAUGE - gauge) / gaugeSpeed / 60.0f;
+					// ゲージを草ごとの速度で増やす
+					gauge += gaugeSpeed;
 					if (gauge >= MAX_GAUGE)
 					{
 						gauge = MAX_GAUGE;
@@ -131,7 +141,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				float releaseTime = GetNowCount() / 1000.0f;
 				float timeDifference = releaseTime - maxTime;
 				// MAXになる予定時間の前後0.15秒なら草を抜く
-				if (gauge >= MAX_GAUGE && timeDifference >= -SUCCESS_TIME && timeDifference <= SUCCESS_TIME)
+				if (timeDifference >= -SUCCESS_TIME && timeDifference <= SUCCESS_TIME)
 				{
 					grassX[selectedGrass] = -1000;
 					grassY[selectedGrass] = -1000;
