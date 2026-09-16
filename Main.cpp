@@ -126,13 +126,15 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		{
 		case TITLE:
 			DrawGraph(0, 0, imgGround, false);
-			DrawText(300, 200, 0x009f00, "タイトル", 0, 100);
+			DrawText(350, 100, 0x00a000, "草むしり", 0, 80);
+			DrawText(350, 300, 0x008000, "Sキー：ゲームスタート", 0, 30);
+			DrawText(370, 350, 0x008000, "Hキー：操作説明", 0, 30);
 			if (CheckHitKey(KEY_INPUT_S))
 			{
 				StopSoundMem(sndTitle);
 				PlaySoundMem(sndPlay, DX_PLAYTYPE_LOOP);
 				scene = PLAY;
-				time = 3;
+				time = 60;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
@@ -154,17 +156,25 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawText(100, 250, 0xffffff, "3. タイミングが合えば草を抜ける", 0, 30);
 			DrawText(100, 300, 0xffffff, "4. 失敗すると１点減点", 0, 30);
 
+			DrawText(100, 340, 0xffffff, "--------------------------------------------------", 0, 30);
+
 			DrawText(100, 380, 0xffffff, "小さい草 :  ＋2点", 0, 30);
 			DrawText(100, 430, 0xffffff, "大きい草 :  ＋5点", 0, 30);
 			DrawText(100, 480, 0xffffff, "金の草   : ＋10点", 0, 30);
 			DrawText(100, 550, 0xffff00, "制限時間 : 60秒", 0, 30);
 
-			DrawText(400, 630, 0xffffff, "Sキー : ゲームスタート", 0, 20);
+			DrawText(600, 380, 0xffffff, "Sランク → 115点以上", 0, 30);
+			DrawText(600, 430, 0xffffff, "Aランク → 90点以上", 0, 30);
+			DrawText(600, 480, 0xffffff, "Bランク → 70点以上", 0, 30);
+			DrawText(600, 530, 0xffffff, "Cランク → 50点以上", 0, 30);
+			DrawText(600, 580, 0xffffff, "Dランク → 50点未満", 0, 30);
+
+			DrawText(400, 670, 0xffffff, "Sキー : ゲームスタート", 0, 20);
 			if (CheckHitKey(KEY_INPUT_S))
 			{
 				PlaySoundMem(sndPlay, DX_PLAYTYPE_LOOP);
 				scene = PLAY;
-				time = 3;
+				time = 60;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
@@ -377,7 +387,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				StopSoundMem(sndResult);
 				PlaySoundMem(sndPlay, DX_PLAYTYPE_LOOP);
 				scene = PLAY;
-				time = 3;
+				time = 60;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
