@@ -76,7 +76,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	};
 
 	// 音声読み込み
+	int sndTitle = LoadSoundMemWithCheck("sound/title.mp3");
+	int sndPlay = LoadSoundMemWithCheck("sound/play.mp3");
 	int seUnplug = LoadSoundMemWithCheck("sound/unplug.mp3");
+	int sndResult = LoadSoundMemWithCheck("sound/result.mp3");
 
 	// 草をランダムな位置に配置
 	for (int i = 0; i < GRASS_NUM; i++)
@@ -113,6 +116,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		else { grassType[i] = 2; }
 	}
 
+	PlaySoundMem(sndTitle, DX_PLAYTYPE_LOOP);
+
 	while (1)
 	{
 		ClearDrawScreen();	// 画面をクリアする
@@ -124,15 +129,22 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawText(300, 200, 0x009f00, "タイトル", 0, 100);
 			if (CheckHitKey(KEY_INPUT_S))
 			{
+				StopSoundMem(sndTitle);
+				PlaySoundMem(sndPlay, DX_PLAYTYPE_LOOP);
 				scene = PLAY;
-				time = 60;
+				time = 3;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
 				gauge = 0.0f;
 				maxTime = 0.0f;
+				resultTimer = 0;
 			}
-			else if (CheckHitKey(KEY_INPUT_H)) { scene = HELP; }
+			else if (CheckHitKey(KEY_INPUT_H)) 
+			{
+				StopSoundMem(sndTitle);
+				scene = HELP;
+			}
 			break;
 
 		case HELP:
@@ -150,13 +162,15 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawText(400, 630, 0xffffff, "Sキー : ゲームスタート", 0, 20);
 			if (CheckHitKey(KEY_INPUT_S))
 			{
+				PlaySoundMem(sndPlay, DX_PLAYTYPE_LOOP);
 				scene = PLAY;
-				time = 60;
+				time = 3;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
 				gauge = 0.0f;
 				maxTime = 0.0f;
+				resultTimer = 0;
 			}
 			break;
 
@@ -171,6 +185,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			if (time <= 0)
 			{
 				time = 0;
+				StopSoundMem(sndPlay);
+				PlaySoundMem(sndResult, DX_PLAYTYPE_LOOP);
 				scene = RESULT;
 				break;
 			}
@@ -344,21 +360,33 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				DrawText(800, 320, rankColor, "%c", rank, 150);
 				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 			}
+			if (resultTimer >= 240)
+			{
+				DrawText(350, 600, 0xffffff, "Rキー：タイトルに戻る", 0, 30);
+				DrawText(350, 650, 0xffffff, "Sキー：リスタート", 0, 30);
+			}
 
-			if (CheckHitKey(KEY_INPUT_R)) { scene = TITLE; }
+			if (CheckHitKey(KEY_INPUT_R)) 
+			{
+				StopSoundMem(sndResult);
+				PlaySoundMem(sndTitle, DX_PLAYTYPE_LOOP);
+				scene = TITLE;
+			}
 			else if (CheckHitKey(KEY_INPUT_S))
 			{
+				StopSoundMem(sndResult);
+				PlaySoundMem(sndPlay, DX_PLAYTYPE_LOOP);
 				scene = PLAY;
-				time = 60;
+				time = 3;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
 				gauge = 0.0f;
 				maxTime = 0.0f;
+				resultTimer = 0;
 			}
 			break;
 		}
-
 
 		ScreenFlip();	// 裏画面の内容を表画面に反映させる
 		WaitTimer(16);	// 一定時間待つ
