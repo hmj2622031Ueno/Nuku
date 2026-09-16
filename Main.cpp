@@ -4,29 +4,31 @@
 const int WIDTH = 1000, HEIGHT = 700;
 enum { TITLE, HELP, PLAY, RESULT };	// シーンを分けるための列挙定数
 
-const int GRASS_NUM = 5;
-const int GRASS_SIZE = 200;
-const float MAX_GAUGE = 100.0f;
-const float SUCCESS_TIME = 0.1f;
+const int GRASS_NUM = 5;	// 画面に表示する草の数
+const int GRASS_SIZE = 200;	// 草の画像サイズ
+const float MAX_GAUGE = 100.0f;	// ゲージの最大値
+const float SUCCESS_TIME = 0.1f;	// 成功判定の時間範囲（±0.1秒）
 // 草ごとのゲージ速度
 const float S_GRASS_SPEED = 2.0f;	// 小さい草
 const float B_GRASS_SPEED = 1.4f;	// 大きい草
 const float G_GRASS_SPEED = 0.8f;	// 金の草
 
-int grassX[GRASS_NUM];
-int grassY[GRASS_NUM];
-int grassType[GRASS_NUM];
+int grassX[GRASS_NUM];	// 草のx座標
+int grassY[GRASS_NUM];	// 草のy座標
+int grassType[GRASS_NUM];	// 草の種類
 int mouseX;
 int mouseY;
-int mouseInput;
-int selectedGrass = -1;
+int mouseInput;	// マウスが押されているかの確認
+int selectedGrass = -1;	// 選択中の草の番号
 int score = 0;
+int time;	// 制限時間
+int oldTime = 0;	// 1秒ごとの計測用
 int scene = TITLE;
 
 float gauge = 0.0f;
-float maxTime = 0.0f;
+float maxTime = 0.0f;	// ゲージがMAXになるまでの時間
 
-bool overlap;
+bool overlap;	// 草同士が重なっていないか
 
 int LoadGraphWithCheck(const char* file);
 
@@ -106,19 +108,60 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		case TITLE:
 			DrawGraph(0, 0, imgGround, false);
 			DrawText(300, 200, 0x009f00, "タイトル", 0, 100);
-			if (CheckHitKey(KEY_INPUT_S)) { scene = PLAY; }
+			if (CheckHitKey(KEY_INPUT_S)) 
+			{ 
+				scene = PLAY;
+				time = 3;
+				score = 0;
+				oldTime = GetNowCount();	// タイマー開始
+				selectedGrass = -1;
+				gauge = 0.0f;
+				maxTime = 0.0f;
+			}
 			else if (CheckHitKey(KEY_INPUT_H)) { scene = HELP; }
 			break;
 
 		case HELP:
-			DrawText(400, 50, 0xffffff, "操作説明", 0, 60);
-			DrawText(10, 10, 0x00ff00, "", 0, 30);
-			if (CheckHitKey(KEY_INPUT_RETURN) == 1) { scene = PLAY; }
+			DrawText(300, 30, 0xffffff, "ルール説明", 0, 60);
+			DrawText(100, 150, 0xffffff, "1. 草をマウス左ボタンで長押し", 0, 30);
+			DrawText(100, 200, 0xffffff, "2. ゲージがMAXになるタイミングで離す", 0, 30);
+			DrawText(100, 250, 0xffffff, "3. タイミングが合えば草を抜ける", 0, 30);
+			DrawText(100, 300, 0xffffff, "4. 失敗すると１点減点", 0, 30);
+
+			DrawText(100, 380, 0xffffff, "小さい草 :  ＋2点", 0, 30);
+			DrawText(100, 430, 0xffffff, "大きい草 :  ＋5点", 0, 30);
+			DrawText(100, 480, 0xffffff, "金の草   : ＋10点", 0, 30);
+			DrawText(100, 550, 0xffff00, "制限時間 : 60秒", 0, 30);
+
+			DrawText(400, 630, 0xffffff, "Sキー : ゲームスタート", 0, 20);
+			if (CheckHitKey(KEY_INPUT_S)) 
+			{ 
+				scene = PLAY;
+				time = 3;
+				score = 0;
+				oldTime = GetNowCount();	// タイマー開始
+				selectedGrass = -1;
+				gauge = 0.0f;
+				maxTime = 0.0f;
+			}
 			break;
 
 		case PLAY:
-			DrawGraph(0, 0, imgGround, false);
+			// 1秒経過したらタイマーを1減らす
+			if (GetNowCount() - oldTime >= 1000)
+			{
+				time--;
+				oldTime = GetNowCount();
+			}
 
+			if (time <= 0)
+			{
+				time = 0;
+				scene = RESULT;
+				break;
+			}
+
+			DrawGraph(0, 0, imgGround, false);
 			GetMousePoint(&mouseX, &mouseY);
 			mouseInput = GetMouseInput();
 
@@ -219,7 +262,12 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 			for (int i = 0; i < GRASS_NUM; i++)
 			{
-				DrawGraph(grassX[i], grassY[i], imgGrass[grassType[i]], true);
+				if (i == selectedGrass)
+				{
+					// 長押し中に草を伸ばす
+					DrawExtendGraph(grassX[i], grassY[i] - 50, grassX[i] + GRASS_SIZE, grassY[i] + GRASS_SIZE, imgGrass[grassType[i]], true);
+				}
+				else { DrawGraph(grassX[i], grassY[i], imgGrass[grassType[i]], true); }
 			}
 
 			if (selectedGrass != -1)
@@ -237,11 +285,26 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				DrawBox(gaugeX, gaugeY, gaugeX + fillWidth, gaugeY + gaugeHeight, GetColor(255, 200, 0), true);
 			}
 			DrawText(10, 10, 0xffffff, "score : %d", score, 30);
+			DrawText(10, 50, 0xffffff, "time : %d", time, 30);
 			break;
 
 		case RESULT:
+			DrawGraph(0, 0, imgGround, false);
+			DrawText(325, 30, 0xffffff, "RESULT", 0, 120);
+			DrawText(300, 300, 0xffffff, "スコア : %dpt", score, 60);
+
+			// スコアに応じてランクを決める
 			if (CheckHitKey(KEY_INPUT_R)) { scene = TITLE; }
-			else if (CheckHitKey(KEY_INPUT_S)) { scene = PLAY; }
+			else if (CheckHitKey(KEY_INPUT_S)) 
+			{ 
+				scene = PLAY;
+				time = 3;
+				score = 0;
+				oldTime = GetNowCount();	// タイマー開始
+				selectedGrass = -1;
+				gauge = 0.0f;
+				maxTime = 0.0f;
+			}
 			break;
 		}
 
