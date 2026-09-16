@@ -24,6 +24,10 @@ int score = 0;
 int time;	// 制限時間
 int oldTime = 0;	// 1秒ごとの計測用
 int scene = TITLE;
+int resultTimer = 0;
+int rankColor;
+int alpha;	// 透明度を表す値
+char rank;
 
 float gauge = 0.0f;
 float maxTime = 0.0f;	// ゲージがMAXになるまでの時間
@@ -36,6 +40,13 @@ int LoadGraphWithCheck(const char* file)
 {
 	int res = LoadGraph(file);
 	if (res == -1) { MessageBox(GetMainWindowHandle(), file, "画像読み込みに失敗", MB_OK | MB_ICONSTOP); }
+	return res;
+}
+
+int LoadSoundMemWithCheck(const char* file)
+{
+	int res = LoadSoundMem(file);
+	if (res == -1) { MessageBox(GetMainWindowHandle(), file, "音声読み込みに失敗", MB_OK | MB_ICONSTOP); }
 	return res;
 }
 
@@ -64,13 +75,16 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		LoadGraphWithCheck("image/goldGrass.png")
 	};
 
+	// 音声読み込み
+	int seUnplug = LoadSoundMemWithCheck("sound/unplug.mp3");
+
 	// 草をランダムな位置に配置
 	for (int i = 0; i < GRASS_NUM; i++)
 	{
 		while (1)
 		{
 			int x = GetRand(WIDTH - GRASS_SIZE);
-			int y = GetRand(HEIGHT - GRASS_SIZE);
+			int y = GetRand(HEIGHT - GRASS_SIZE - 50);
 			overlap = false;
 
 			// 既に置いた草と重なっていないか確認
@@ -108,10 +122,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		case TITLE:
 			DrawGraph(0, 0, imgGround, false);
 			DrawText(300, 200, 0x009f00, "タイトル", 0, 100);
-			if (CheckHitKey(KEY_INPUT_S)) 
-			{ 
+			if (CheckHitKey(KEY_INPUT_S))
+			{
 				scene = PLAY;
-				time = 3;
+				time = 60;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
@@ -134,10 +148,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawText(100, 550, 0xffff00, "制限時間 : 60秒", 0, 30);
 
 			DrawText(400, 630, 0xffffff, "Sキー : ゲームスタート", 0, 20);
-			if (CheckHitKey(KEY_INPUT_S)) 
-			{ 
+			if (CheckHitKey(KEY_INPUT_S))
+			{
 				scene = PLAY;
-				time = 3;
+				time = 60;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
@@ -164,7 +178,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawGraph(0, 0, imgGround, false);
 			GetMousePoint(&mouseX, &mouseY);
 			mouseInput = GetMouseInput();
-
 			if (mouseInput & MOUSE_INPUT_LEFT)
 			{
 				if (selectedGrass == -1)
@@ -222,7 +235,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 						while (1)
 						{
 							int x = GetRand(WIDTH - GRASS_SIZE);
-							int y = GetRand(HEIGHT - GRASS_SIZE);
+							int y = GetRand(HEIGHT - GRASS_SIZE - 50);
 							overlap = false;
 
 							// 他の草と重ならないか確認
@@ -289,16 +302,54 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			break;
 
 		case RESULT:
+			resultTimer++;
 			DrawGraph(0, 0, imgGround, false);
-			DrawText(325, 30, 0xffffff, "RESULT", 0, 120);
-			DrawText(300, 300, 0xffffff, "スコア : %dpt", score, 60);
+			if (resultTimer >= 30) { DrawText(325, 30, 0xffffff, "RESULT", 0, 120); }
+			if (resultTimer >= 90) { DrawText(280, 300, 0xffffff, "スコア : %dpt", score, 60); }
+			if (resultTimer >= 120) { DrawText(770, 270, 0xffffff, "ランク", 0, 40); }
 
 			// スコアに応じてランクを決める
+			if (score >= 115)
+			{
+				rank = 'S';
+				rankColor = 0x0000ff;	// 青色
+			}
+			else if (score >= 90)
+			{
+				rank = 'A';
+				rankColor = 0xffd700;	// 金
+			}
+			else if (score >= 70)
+			{
+				rank = 'B';
+				rankColor = 0xc0c0c0;	// 銀
+			}
+			else if (score >= 50)
+			{
+				rank = 'C';
+				rankColor = 0xcd7f32;	// 銅
+			}
+			else
+			{
+				rank = 'D';
+				rankColor = 0x808080;	// 灰色
+			}
+
+			if (resultTimer >= 180)
+			{
+				// ランクを徐々に表示させる
+				alpha = (resultTimer - 180) * 255 / 30;
+				if (alpha > 255) { alpha = 255; }
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+				DrawText(800, 320, rankColor, "%c", rank, 150);
+				SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+			}
+
 			if (CheckHitKey(KEY_INPUT_R)) { scene = TITLE; }
-			else if (CheckHitKey(KEY_INPUT_S)) 
-			{ 
+			else if (CheckHitKey(KEY_INPUT_S))
+			{
 				scene = PLAY;
-				time = 3;
+				time = 60;
 				score = 0;
 				oldTime = GetNowCount();	// タイマー開始
 				selectedGrass = -1;
