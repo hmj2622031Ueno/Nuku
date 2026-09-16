@@ -163,9 +163,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DrawText(100, 480, 0xffffff, "金の草   : ＋10点", 0, 30);
 			DrawText(100, 550, 0xffff00, "制限時間 : 60秒", 0, 30);
 
-			DrawText(600, 380, 0xffffff, "Sランク → 115点以上", 0, 30);
-			DrawText(600, 430, 0xffffff, "Aランク → 90点以上", 0, 30);
-			DrawText(600, 480, 0xffffff, "Bランク → 70点以上", 0, 30);
+			DrawText(600, 380, 0xffffff, "Sランク → 120点以上", 0, 30);
+			DrawText(600, 430, 0xffffff, "Aランク → 100点以上", 0, 30);
+			DrawText(600, 480, 0xffffff, "Bランク → 80点以上", 0, 30);
 			DrawText(600, 530, 0xffffff, "Cランク → 50点以上", 0, 30);
 			DrawText(600, 580, 0xffffff, "Dランク → 50点未満", 0, 30);
 
@@ -335,17 +335,17 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			if (resultTimer >= 120) { DrawText(770, 270, 0xffffff, "ランク", 0, 40); }
 
 			// スコアに応じてランクを決める
-			if (score >= 115)
+			if (score >= 120)
 			{
 				rank = 'S';
 				rankColor = 0x0000ff;	// 青色
 			}
-			else if (score >= 90)
+			else if (score >= 100)
 			{
 				rank = 'A';
 				rankColor = 0xffd700;	// 金
 			}
-			else if (score >= 70)
+			else if (score >= 80)
 			{
 				rank = 'B';
 				rankColor = 0xc0c0c0;	// 銀
