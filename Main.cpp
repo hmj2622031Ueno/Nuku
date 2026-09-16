@@ -126,9 +126,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		{
 		case TITLE:
 			DrawGraph(0, 0, imgGround, false);
-			DrawText(350, 100, 0x00a000, "草むしり", 0, 80);
-			DrawText(350, 300, 0x008000, "Sキー：ゲームスタート", 0, 30);
-			DrawText(370, 350, 0x008000, "Hキー：操作説明", 0, 30);
+			DrawText(190, 100, 0x00a000, "草むしりマスター", 0, 80);
+			DrawText(350, 250, 0x008000, "Sキー：ゲームスタート", 0, 30);
+			DrawText(370, 300, 0x008000, "Hキー：操作説明", 0, 30);
 			if (CheckHitKey(KEY_INPUT_S))
 			{
 				StopSoundMem(sndTitle);
